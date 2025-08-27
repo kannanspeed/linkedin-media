@@ -12,7 +12,7 @@ class Config:
     # LinkedIn OAuth configuration
     LINKEDIN_CLIENT_ID = '86sf2mwklf3bar'
     LINKEDIN_CLIENT_SECRET = 'WPL_AP1.9r9ObArF82SufuIY.RAvHkg=='
-    LINKEDIN_REDIRECT_URI = 'http://localhost:5000/auth/linkedin/callback'
+    LINKEDIN_REDIRECT_URI = 'https://linkedin-scheduler-eta1.onrender.com/auth/linkedin/callback'
     
     # File upload configuration
     UPLOAD_FOLDER = 'static/uploads'

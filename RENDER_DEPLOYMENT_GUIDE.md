@@ -30,7 +30,7 @@ FLASK_ENV=production
 LINKEDIN_CLIENT_ID=86sf2mwklf3bar
 LINKEDIN_CLIENT_SECRET=WPL_AP1.9r9ObArF82SufuIY.RAvHkg==
 SECRET_KEY=zRZ3r1EwP5uhHYKXlTwNZbu9UikLkjR4ahH15fG8VZw
-LINKEDIN_REDIRECT_URI=https://your-app-name.onrender.com/auth/linkedin/callback
+LINKEDIN_REDIRECT_URI=https://linkedin-scheduler-eta1.onrender.com/auth/linkedin/callback
 ```
 
 ⚠️ **Important**: Replace `your-app-name` with your actual Render service name!
@@ -41,7 +41,7 @@ LINKEDIN_REDIRECT_URI=https://your-app-name.onrender.com/auth/linkedin/callback
 2. **Select your app** (Client ID: 86sf2mwklf3bar)
 3. **Update Redirect URIs**:
    - Remove: `http://localhost:5000/auth/linkedin/callback`
-   - Add: `https://your-actual-render-url.onrender.com/auth/linkedin/callback`
+   - Add: `https://linkedin-scheduler-eta1.onrender.com/auth/linkedin/callback`
 4. **Verify Scopes**: Make sure you have:
    - ✅ `r_liteprofile` (Read basic profile)
    - ✅ `w_member_social` (Post on behalf of user)
@@ -87,7 +87,7 @@ Your repository includes these deployment files:
 ### Redirect URI Mismatch:
 - **Error**: "redirect_uri_mismatch"  
 - **Fix**: Ensure exact match between LinkedIn app and Render URL
-- **Format**: `https://your-app-name.onrender.com/auth/linkedin/callback`
+- **Format**: `https://linkedin-scheduler-eta1.onrender.com/auth/linkedin/callback`
 
 ### Build Failures:
 - Check Render build logs for specific errors
@@ -150,7 +150,7 @@ If you encounter issues:
 2. 🔄 **Create Render service**: Connect GitHub repo
 3. ⚙️ **Set environment variables**: Use your LinkedIn credentials  
 4. 🔗 **Update LinkedIn app**: Set correct redirect URI
-5. 🚀 **Go live**: Your app will be at `https://your-app-name.onrender.com`
+5. 🚀 **Go live**: Your app will be at `https://linkedin-scheduler-eta1.onrender.com`
 
 **Your LinkedIn Scheduler is production-ready and optimized for Render deployment!** 🚀
 

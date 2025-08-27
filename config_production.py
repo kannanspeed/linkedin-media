@@ -21,7 +21,7 @@ class Config:
     # LinkedIn OAuth configuration
     LINKEDIN_CLIENT_ID = os.environ.get('LINKEDIN_CLIENT_ID')
     LINKEDIN_CLIENT_SECRET = os.environ.get('LINKEDIN_CLIENT_SECRET')
-    LINKEDIN_REDIRECT_URI = os.environ.get('LINKEDIN_REDIRECT_URI') or 'https://your-app-name.onrender.com/auth/linkedin/callback'
+    LINKEDIN_REDIRECT_URI = os.environ.get('LINKEDIN_REDIRECT_URI') or 'https://linkedin-scheduler-eta1.onrender.com/auth/linkedin/callback'
     
     # File upload configuration
     UPLOAD_FOLDER = 'static/uploads'

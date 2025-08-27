@@ -62,7 +62,6 @@ pip install -r requirements.txt
 3. Add the following redirect URI: `http://localhost:5000/auth/linkedin/callback`
 4. Request access to the following scopes:
    - `r_liteprofile`
-   - `r_emailaddress`
    - `w_member_social`
 
 ### 5. Environment Configuration

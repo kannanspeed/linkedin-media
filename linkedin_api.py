@@ -20,7 +20,7 @@ class LinkedInAPI:
             'response_type': 'code',
             'client_id': self.client_id,
             'redirect_uri': self.redirect_uri,
-            'scope': 'r_liteprofile w_member_social',
+            'scope': 'r_basicprofile',
             'state': state or 'random_state_string'
         }
         return f"{self.auth_url}?{urlencode(params)}"

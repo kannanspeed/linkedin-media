@@ -13,17 +13,22 @@
         <form id="create-post-form" enctype="multipart/form-data">
             <div class="form-grid">
                 <!-- Post Content -->
-                <div class="form-section">
+                <div class="form-section main-content">
+                    <h3 class="section-title">
+                        <i class="fas fa-edit"></i>
+                        Post Content
+                    </h3>
+                    
                     <div class="form-group">
                         <label for="post-content" class="form-label">
-                            Post Content
+                            What's on your mind?
                             <span class="required">*</span>
                         </label>
                         <textarea 
                             id="post-content" 
                             name="content" 
                             class="form-control post-textarea" 
-                            placeholder="What's on your mind? Share your thoughts with your LinkedIn network..."
+                            placeholder="Share your thoughts, insights, or updates with your LinkedIn network..."
                             rows="8"
                             maxlength="3000"
                             required
@@ -35,6 +40,7 @@
                     
                     <div class="form-group">
                         <label for="post-image" class="form-label">
+                            <i class="fas fa-image"></i>
                             Attach Image (Optional)
                         </label>
                         <div class="file-upload-area" id="file-upload-area">
@@ -55,8 +61,11 @@
                 </div>
                 
                 <!-- Scheduling Options -->
-                <div class="form-section">
-                    <h3 class="section-title">Scheduling Options</h3>
+                <div class="form-section sidebar">
+                    <h3 class="section-title">
+                        <i class="fas fa-clock"></i>
+                        Scheduling Options
+                    </h3>
                     
                     <div class="schedule-options">
                         <div class="schedule-option">
@@ -76,7 +85,7 @@
                             <input type="radio" id="schedule-later" name="schedule_type" value="scheduled">
                             <label for="schedule-later" class="schedule-label">
                                 <div class="schedule-icon">
-                                    <i class="fas fa-clock"></i>
+                                    <i class="fas fa-calendar-alt"></i>
                                 </div>
                                 <div class="schedule-info">
                                     <strong>Schedule for Later</strong>
@@ -100,12 +109,15 @@
                             <h4>Suggested optimal posting times:</h4>
                             <div class="time-suggestions">
                                 <button type="button" class="time-suggestion" onclick="setOptimalTime('09:00')">
+                                    <i class="fas fa-sun"></i>
                                     9:00 AM - Morning engagement
                                 </button>
                                 <button type="button" class="time-suggestion" onclick="setOptimalTime('12:00')">
+                                    <i class="fas fa-utensils"></i>
                                     12:00 PM - Lunch break
                                 </button>
                                 <button type="button" class="time-suggestion" onclick="setOptimalTime('17:00')">
+                                    <i class="fas fa-home"></i>
                                     5:00 PM - End of workday
                                 </button>
                             </div>

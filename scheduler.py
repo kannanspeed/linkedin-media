@@ -8,6 +8,21 @@ from database import db, Post, PostStatus, User
 from linkedin_api import LinkedInAPI
 from config import Config
 
+# Global scheduler instance
+_scheduler_instance = None
+
+def get_scheduler():
+    """Get the global scheduler instance"""
+    return _scheduler_instance
+
+def publish_post_job(post_id):
+    """Standalone function to publish a post (for APScheduler)"""
+    scheduler = get_scheduler()
+    if scheduler:
+        scheduler.publish_post(post_id)
+    else:
+        print(f"Cannot publish post {post_id}: scheduler not initialized")
+
 class PostScheduler:
     def __init__(self, app=None):
         self.scheduler = None
@@ -17,6 +32,8 @@ class PostScheduler:
     
     def init_app(self, app):
         """Initialize the scheduler with the Flask app"""
+        global _scheduler_instance
+        
         # Configure job stores and executors
         jobstores = {
             'default': SQLAlchemyJobStore(url=app.config['SQLALCHEMY_DATABASE_URI'])
@@ -45,6 +62,9 @@ class PostScheduler:
             app.config['LINKEDIN_REDIRECT_URI']
         )
         
+        # Set global instance
+        _scheduler_instance = self
+        
         # Start scheduler
         self.scheduler.start()
         
@@ -62,9 +82,9 @@ class PostScheduler:
             if self.scheduler.get_job(job_id):
                 self.scheduler.remove_job(job_id)
             
-            # Schedule new job
+            # Schedule new job using standalone function
             self.scheduler.add_job(
-                func=self.publish_post,
+                func=publish_post_job,
                 trigger='date',
                 run_date=scheduled_time,
                 args=[post_id],

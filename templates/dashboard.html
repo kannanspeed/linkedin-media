@@ -3,151 +3,308 @@
 {% block title %}Dashboard - LinkedIn Scheduler{% endblock %}
 
 {% block content %}
-<div class="dashboard">
+<div class="modern-dashboard">
     <!-- Dashboard Header -->
-    <div class="dashboard-header">
-        <div class="header-content">
-            <h1>Welcome back, {{ current_user.name }}!</h1>
-            <p>Manage your LinkedIn posts and track your content strategy</p>
+    <div class="dashboard-hero">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1>Welcome back, {{ current_user.name.split()[0] }}! 👋</h1>
+                <p>Manage your LinkedIn content strategy with ease</p>
+            </div>
+            <div class="hero-actions">
+                <a href="{{ url_for('create_post') }}" class="btn-hero btn-primary">
+                    <i class="fas fa-plus"></i>
+                    Create New Post
+                </a>
+                <a href="{{ url_for('analytics') }}" class="btn-hero btn-secondary">
+                    <i class="fas fa-chart-line"></i>
+                    View Analytics
+                </a>
+            </div>
         </div>
         
-        <div class="header-actions">
-            <a href="{{ url_for('create_post') }}" class="btn btn-primary">
-                <i class="fas fa-plus"></i>
-                Create New Post
-            </a>
-        </div>
-    </div>
-    
-    <!-- Stats Cards -->
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-file-alt"></i>
-            </div>
-            <div class="stat-content">
-                <div class="stat-number">{{ stats.total }}</div>
+        <!-- Quick Stats -->
+        <div class="quick-stats">
+            <div class="stat-item">
+                <div class="stat-value">{{ stats.total }}</div>
                 <div class="stat-label">Total Posts</div>
-            </div>
-        </div>
-        
-        <div class="stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-check-circle"></i>
-            </div>
-            <div class="stat-content">
-                <div class="stat-number">{{ stats.published }}</div>
-                <div class="stat-label">Published</div>
-            </div>
-        </div>
-        
-        <div class="stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-clock"></i>
-            </div>
-            <div class="stat-content">
-                <div class="stat-number">{{ stats.scheduled }}</div>
-                <div class="stat-label">Scheduled</div>
-            </div>
-        </div>
-        
-        <div class="stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-percentage"></i>
-            </div>
-            <div class="stat-content">
-                <div class="stat-number">{{ stats.success_rate }}%</div>
-                <div class="stat-label">Success Rate</div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Main Content Grid -->
-    <div class="dashboard-grid">
-        <!-- Posts List -->
-        <div class="dashboard-section posts-section">
-            <div class="section-header">
-                <h2>Recent Posts</h2>
-                <div class="section-filters">
-                    <select id="status-filter" class="form-select">
-                        <option value="">All Posts</option>
-                        <option value="draft">Drafts</option>
-                        <option value="scheduled">Scheduled</option>
-                        <option value="published">Published</option>
-                        <option value="failed">Failed</option>
-                    </select>
+                <div class="stat-icon">
+                    <i class="fas fa-file-alt"></i>
                 </div>
             </div>
+            <div class="stat-item">
+                <div class="stat-value">{{ stats.published }}</div>
+                <div class="stat-label">Published</div>
+                <div class="stat-icon success">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">{{ stats.scheduled }}</div>
+                <div class="stat-label">Scheduled</div>
+                <div class="stat-icon warning">
+                    <i class="fas fa-clock"></i>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">{{ stats.draft or 0 }}</div>
+                <div class="stat-label">Drafts</div>
+                <div class="stat-icon info">
+                    <i class="fas fa-edit"></i>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">{{ stats.failed or 0 }}</div>
+                <div class="stat-label">Failed</div>
+                <div class="stat-icon danger">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="dashboard-main">
+        <!-- Content Tabs -->
+        <div class="content-tabs">
+            <div class="tab-nav">
+                <button class="tab-btn active" data-tab="all-posts">
+                    <i class="fas fa-list"></i>
+                    All Posts
+                </button>
+                <button class="tab-btn" data-tab="scheduled">
+                    <i class="fas fa-calendar-alt"></i>
+                    Scheduled
+                </button>
+                <button class="tab-btn" data-tab="drafts">
+                    <i class="fas fa-edit"></i>
+                    Drafts
+                </button>
+                <button class="tab-btn" data-tab="history">
+                    <i class="fas fa-history"></i>
+                    History
+                </button>
+            </div>
             
-            <div class="posts-list" id="posts-list">
+            <div class="tab-actions">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search posts..." id="search-posts">
+                </div>
+                <select id="status-filter" class="filter-select">
+                    <option value="">All Status</option>
+                    <option value="draft">Drafts</option>
+                    <option value="scheduled">Scheduled</option>
+                    <option value="published">Published</option>
+                    <option value="failed">Failed</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Posts Content -->
+        <div class="tab-content active" id="all-posts">
+            <div class="posts-container">
                 {% if posts %}
                     {% for post in posts %}
-                    <div class="post-item" data-status="{{ post.status.value }}">
-                        <div class="post-content">
-                            <div class="post-text">
-                                {{ post.content[:150] }}{% if post.content|length > 150 %}...{% endif %}
+                    <div class="modern-post-card" data-status="{{ post.status.value }}">
+                        <div class="post-header">
+                            <div class="post-status-badge status-{{ post.status.value }}">
+                                {% if post.status.value == 'draft' %}
+                                    <i class="fas fa-edit"></i> Draft
+                                {% elif post.status.value == 'scheduled' %}
+                                    <i class="fas fa-clock"></i> Scheduled
+                                {% elif post.status.value == 'published' %}
+                                    <i class="fas fa-check-circle"></i> Published
+                                {% elif post.status.value == 'failed' %}
+                                    <i class="fas fa-exclamation-triangle"></i> Failed
+                                {% endif %}
                             </div>
-                            
-                            {% if post.image_path %}
-                            <div class="post-image-preview">
-                                <img src="{{ url_for('static', filename=post.image_path) }}" alt="Post image">
+                            <div class="post-date">
+                                {{ post.created_at.strftime('%b %d, %Y at %I:%M %p') }}
                             </div>
-                            {% endif %}
-                            
-                            <div class="post-meta">
-                                <div class="post-status status-{{ post.status.value }}">
-                                    {% if post.status.value == 'draft' %}
-                                        <i class="fas fa-edit"></i> Draft
-                                    {% elif post.status.value == 'scheduled' %}
-                                        <i class="fas fa-clock"></i> Scheduled for {{ post.scheduled_time.strftime('%b %d, %Y at %I:%M %p') }}
-                                    {% elif post.status.value == 'published' %}
-                                        <i class="fas fa-check-circle"></i> Published {{ post.published_time.strftime('%b %d, %Y') }}
-                                    {% elif post.status.value == 'failed' %}
-                                        <i class="fas fa-exclamation-triangle"></i> Failed
+                            <div class="post-menu">
+                                <button class="menu-btn" onclick="togglePostMenu({{ post.id }})">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                                <div class="post-dropdown" id="menu-{{ post.id }}">
+                                    {% if post.status.value in ['draft', 'failed'] %}
+                                    <button onclick="publishPost({{ post.id }})">
+                                        <i class="fas fa-paper-plane"></i>
+                                        Publish Now
+                                    </button>
                                     {% endif %}
-                                </div>
-                                
-                                <div class="post-date">
-                                    Created {{ post.created_at.strftime('%b %d, %Y') }}
+                                    {% if post.status.value == 'scheduled' %}
+                                    <button onclick="reschedulePost({{ post.id }})">
+                                        <i class="fas fa-calendar-alt"></i>
+                                        Reschedule
+                                    </button>
+                                    {% endif %}
+                                    <button onclick="duplicatePost({{ post.id }})">
+                                        <i class="fas fa-copy"></i>
+                                        Duplicate
+                                    </button>
+                                    <button onclick="deletePost({{ post.id }})" class="danger">
+                                        <i class="fas fa-trash"></i>
+                                        Delete
+                                    </button>
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="post-actions">
-                            {% if post.status.value in ['draft', 'failed'] %}
-                            <button class="btn btn-sm btn-success" onclick="publishPost({{ post.id }})">
-                                <i class="fas fa-paper-plane"></i>
-                                Publish Now
-                            </button>
-                            {% endif %}
+                        <div class="post-body">
+                            <div class="post-content">
+                                <p>{{ post.content[:200] }}{% if post.content|length > 200 %}...{% endif %}</p>
+                            </div>
                             
-                            {% if post.status.value == 'scheduled' %}
-                            <button class="btn btn-sm btn-warning" onclick="reschedulePost({{ post.id }})">
-                                <i class="fas fa-calendar-alt"></i>
-                                Reschedule
-                            </button>
+                            {% if post.image_path %}
+                            <div class="post-media">
+                                <img src="{{ url_for('static', filename=post.image_path) }}" alt="Post image">
+                            </div>
                             {% endif %}
+                        </div>
+                        
+                        <div class="post-footer">
+                            <div class="post-info">
+                                {% if post.status.value == 'scheduled' and post.scheduled_time %}
+                                    <span class="schedule-info">
+                                        <i class="fas fa-calendar"></i>
+                                        Scheduled for {{ post.scheduled_time.strftime('%b %d, %Y at %I:%M %p') }}
+                                    </span>
+                                {% elif post.status.value == 'published' and post.published_time %}
+                                    <span class="publish-info">
+                                        <i class="fas fa-check"></i>
+                                        Published on {{ post.published_time.strftime('%b %d, %Y at %I:%M %p') }}
+                                    </span>
+                                {% elif post.status.value == 'failed' and post.error_message %}
+                                    <span class="error-info">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        Failed: {{ post.error_message[:50] }}{% if post.error_message|length > 50 %}...{% endif %}
+                                    </span>
+                                {% endif %}
+                            </div>
                             
-                            <button class="btn btn-sm btn-danger" onclick="deletePost({{ post.id }})">
-                                <i class="fas fa-trash"></i>
-                                Delete
-                            </button>
+                            <div class="post-actions">
+                                {% if post.status.value in ['draft', 'failed'] %}
+                                <button class="action-btn primary" onclick="publishPost({{ post.id }})">
+                                    <i class="fas fa-paper-plane"></i>
+                                    Publish
+                                </button>
+                                {% endif %}
+                                {% if post.status.value == 'scheduled' %}
+                                <button class="action-btn secondary" onclick="reschedulePost({{ post.id }})">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    Reschedule
+                                </button>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
                     {% endfor %}
                 {% else %}
-                    <div class="empty-state">
-                        <i class="fas fa-file-alt"></i>
+                    <div class="empty-state-modern">
+                        <div class="empty-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
                         <h3>No posts yet</h3>
-                        <p>Create your first LinkedIn post to get started</p>
-                        <a href="{{ url_for('create_post') }}" class="btn btn-primary">
+                        <p>Create your first LinkedIn post to get started with your content strategy</p>
+                        <a href="{{ url_for('create_post') }}" class="btn-modern btn-primary">
                             <i class="fas fa-plus"></i>
-                            Create First Post
+                            Create Your First Post
                         </a>
                     </div>
                 {% endif %}
             </div>
         </div>
+
+        <!-- Scheduled Tab -->
+        <div class="tab-content" id="scheduled">
+            <div class="scheduled-timeline">
+                {% if scheduled_posts %}
+                    {% for post in scheduled_posts %}
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-header">
+                                <div class="timeline-time">
+                                    {{ post.scheduled_time.strftime('%b %d, %Y at %I:%M %p') }}
+                                </div>
+                                <div class="timeline-actions">
+                                    <button onclick="reschedulePost({{ post.id }})">Reschedule</button>
+                                </div>
+                            </div>
+                            <div class="timeline-body">
+                                {{ post.content[:150] }}{% if post.content|length > 150 %}...{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state-modern">
+                        <div class="empty-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <h3>No scheduled posts</h3>
+                        <p>Schedule posts to maintain consistent presence on LinkedIn</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Drafts Tab -->
+        <div class="tab-content" id="drafts">
+            <div class="drafts-grid">
+                {% for post in posts if post.status.value == 'draft' %}
+                <div class="draft-card">
+                    <div class="draft-content">
+                        {{ post.content[:100] }}{% if post.content|length > 100 %}...{% endif %}
+                    </div>
+                    <div class="draft-actions">
+                        <button onclick="editDraft({{ post.id }})">Edit</button>
+                        <button onclick="publishPost({{ post.id }})">Publish</button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- History Tab -->
+        <div class="tab-content" id="history">
+            <div class="history-list">
+                {% for post in posts if post.status.value in ['published', 'failed'] %}
+                <div class="history-item status-{{ post.status.value }}">
+                    <div class="history-icon">
+                        {% if post.status.value == 'published' %}
+                            <i class="fas fa-check-circle"></i>
+                        {% else %}
+                            <i class="fas fa-exclamation-triangle"></i>
+                        {% endif %}
+                    </div>
+                    <div class="history-content">
+                        <div class="history-text">
+                            {{ post.content[:120] }}{% if post.content|length > 120 %}...{% endif %}
+                        </div>
+                        <div class="history-meta">
+                            {% if post.status.value == 'published' %}
+                                Published on {{ post.published_time.strftime('%b %d, %Y at %I:%M %p') if post.published_time else 'Unknown date' }}
+                            {% else %}
+                                Failed on {{ post.updated_at.strftime('%b %d, %Y at %I:%M %p') }}
+                                {% if post.error_message %}
+                                    <br><span class="error-detail">{{ post.error_message }}</span>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="history-actions">
+                        {% if post.status.value == 'failed' %}
+                        <button onclick="retryPost({{ post.id }})">Retry</button>
+                        {% endif %}
+                        <button onclick="duplicatePost({{ post.id }})">Duplicate</button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
         
         <!-- Upcoming Schedule -->
         <div class="dashboard-section schedule-section">
@@ -232,6 +389,69 @@
 <script>
 let currentPostId = null;
 
+// Tab functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const targetTab = this.dataset.tab;
+            
+            // Remove active class from all tabs and contents
+            tabBtns.forEach(b => b.classList.remove('active'));
+            tabContents.forEach(c => c.classList.remove('active'));
+            
+            // Add active class to clicked tab and corresponding content
+            this.classList.add('active');
+            document.getElementById(targetTab).classList.add('active');
+        });
+    });
+    
+    // Search functionality
+    const searchInput = document.getElementById('search-posts');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const posts = document.querySelectorAll('.modern-post-card');
+            
+            posts.forEach(post => {
+                const content = post.querySelector('.post-content p').textContent.toLowerCase();
+                if (content.includes(searchTerm)) {
+                    post.style.display = 'block';
+                } else {
+                    post.style.display = 'none';
+                }
+            });
+        });
+    }
+});
+
+// Post menu functionality
+function togglePostMenu(postId) {
+    const menu = document.getElementById(`menu-${postId}`);
+    const allMenus = document.querySelectorAll('.post-dropdown');
+    
+    // Close all other menus
+    allMenus.forEach(m => {
+        if (m !== menu) {
+            m.classList.remove('active');
+        }
+    });
+    
+    // Toggle current menu
+    menu.classList.toggle('active');
+}
+
+// Close menus when clicking outside
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.post-menu')) {
+        document.querySelectorAll('.post-dropdown').forEach(menu => {
+            menu.classList.remove('active');
+        });
+    }
+});
+
 function publishPost(postId) {
     if (!confirm('Are you sure you want to publish this post now?')) {
         return;
@@ -285,6 +505,65 @@ function deletePost(postId) {
         hideLoading();
         showFlashMessage('An error occurred', 'error');
     });
+}
+
+function duplicatePost(postId) {
+    showLoading();
+    
+    fetch(`/api/posts/${postId}/duplicate`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        hideLoading();
+        if (data.success) {
+            showFlashMessage('Post duplicated successfully', 'success');
+            location.reload();
+        } else {
+            showFlashMessage(data.error || 'Failed to duplicate post', 'error');
+        }
+    })
+    .catch(error => {
+        hideLoading();
+        showFlashMessage('An error occurred', 'error');
+    });
+}
+
+function retryPost(postId) {
+    if (!confirm('Are you sure you want to retry publishing this post?')) {
+        return;
+    }
+    
+    showLoading();
+    
+    fetch(`/api/posts/${postId}/retry`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        hideLoading();
+        if (data.success) {
+            showFlashMessage('Post retry initiated...', 'success');
+            setTimeout(() => location.reload(), 2000);
+        } else {
+            showFlashMessage(data.error || 'Failed to retry post', 'error');
+        }
+    })
+    .catch(error => {
+        hideLoading();
+        showFlashMessage('An error occurred', 'error');
+    });
+}
+
+function editDraft(postId) {
+    // This would ideally redirect to edit page or open modal
+    window.location.href = `/edit-post/${postId}`;
 }
 
 function reschedulePost(postId) {

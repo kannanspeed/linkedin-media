@@ -175,6 +175,7 @@ def api_create_post():
     try:
         content = request.form.get('content', '').strip()
         scheduled_time_str = request.form.get('scheduled_time')
+        schedule_type = request.form.get('schedule_type', 'draft')
         
         if not content:
             return jsonify({'error': 'Post content is required'}), 400
@@ -200,32 +201,48 @@ def api_create_post():
                     os.remove(file_path)
                     return jsonify({'error': 'Failed to process image'}), 400
         
-        # Parse scheduled time
+        # Handle different schedule types
         scheduled_time = None
-        if scheduled_time_str:
+        post_status = PostStatus.DRAFT
+        
+        if schedule_type == 'now':
+            # Post immediately
+            post_status = PostStatus.SCHEDULED
+            scheduled_time = datetime.utcnow()
+        elif schedule_type == 'scheduled' and scheduled_time_str:
+            # Parse scheduled time
             try:
                 scheduled_time = datetime.fromisoformat(scheduled_time_str.replace('Z', '+00:00'))
                 if scheduled_time <= datetime.utcnow():
                     return jsonify({'error': 'Scheduled time must be in the future'}), 400
+                post_status = PostStatus.SCHEDULED
             except ValueError:
                 return jsonify({'error': 'Invalid scheduled time format'}), 400
+        elif schedule_type == 'scheduled' and not scheduled_time_str:
+            # Next available time (default to 1 hour from now)
+            scheduled_time = datetime.utcnow() + timedelta(hours=1)
+            post_status = PostStatus.SCHEDULED
         
         # Create post
         post = Post(
             user_id=current_user.id,
             content=content,
             image_path=image_path,
-            status=PostStatus.SCHEDULED if scheduled_time else PostStatus.DRAFT,
+            status=post_status,
             scheduled_time=scheduled_time
         )
         
         db.session.add(post)
         db.session.commit()
         
-        # Schedule post if time is specified
-        if scheduled_time:
+        # Schedule post if needed
+        if scheduled_time and post_status == PostStatus.SCHEDULED:
             if post_scheduler.schedule_post(post.id, scheduled_time):
-                flash('Post scheduled successfully!', 'success')
+                if schedule_type == 'now':
+                    message = 'Post is being published now!'
+                else:
+                    message = 'Post scheduled successfully!'
+                flash(message, 'success')
             else:
                 post.status = PostStatus.DRAFT
                 db.session.commit()

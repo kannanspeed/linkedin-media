@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block title %}LinkedIn Scheduler - Schedule Your LinkedIn Posts{% endblock %}
+
+{% block content %}
+<div class="landing-page">
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    Schedule Your LinkedIn Posts
+                    <span class="hero-highlight">Like a Pro</span>
+                </h1>
+                <p class="hero-description">
+                    Connect your LinkedIn account and schedule posts with images. 
+                    Track your posting schedule, manage drafts, and never miss a post again.
+                </p>
+                
+                <div class="hero-cta">
+                    <a href="{{ url_for('linkedin_auth') }}" class="btn btn-primary btn-large">
+                        <i class="fab fa-linkedin"></i>
+                        Connect LinkedIn Account
+                    </a>
+                    <p class="cta-note">
+                        <i class="fas fa-lock"></i>
+                        Secure OAuth connection - we never store your password
+                    </p>
+                </div>
+            </div>
+            
+            <div class="hero-visual">
+                <div class="hero-mockup">
+                    <div class="mockup-window">
+                        <div class="mockup-header">
+                            <div class="mockup-buttons">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                        </div>
+                        <div class="mockup-content">
+                            <div class="mockup-post">
+                                <div class="post-header">
+                                    <div class="post-avatar"></div>
+                                    <div class="post-info">
+                                        <div class="post-name"></div>
+                                        <div class="post-time"></div>
+                                    </div>
+                                </div>
+                                <div class="post-content">
+                                    <div class="post-text"></div>
+                                    <div class="post-text short"></div>
+                                    <div class="post-image"></div>
+                                </div>
+                                <div class="post-status scheduled">
+                                    <i class="fas fa-clock"></i>
+                                    Scheduled for tomorrow
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Features Section -->
+    <section class="features">
+        <div class="features-container">
+            <h2 class="features-title">Everything You Need to Manage LinkedIn Posts</h2>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Smart Scheduling</h3>
+                    <p class="feature-description">
+                        Schedule posts for optimal times. Set specific dates and times 
+                        or let our system suggest the best posting times.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-images"></i>
+                    </div>
+                    <h3 class="feature-title">Image Support</h3>
+                    <p class="feature-description">
+                        Upload and attach images to your posts. Automatic image 
+                        optimization for LinkedIn's requirements.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="feature-title">Analytics Dashboard</h3>
+                    <p class="feature-description">
+                        Track your posting success rate, view scheduled posts, 
+                        and monitor your LinkedIn content strategy.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-edit"></i>
+                    </div>
+                    <h3 class="feature-title">Draft Management</h3>
+                    <p class="feature-description">
+                        Save posts as drafts, edit scheduled posts, and manage 
+                        your content pipeline efficiently.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-sync-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Auto-Retry</h3>
+                    <p class="feature-description">
+                        Automatic retry mechanism for failed posts. Never lose 
+                        your content due to temporary network issues.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Secure & Private</h3>
+                    <p class="feature-description">
+                        Your data is encrypted and secure. We use LinkedIn's 
+                        official API with OAuth 2.0 authentication.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- How It Works Section -->
+    <section class="how-it-works">
+        <div class="how-it-works-container">
+            <h2 class="section-title">How It Works</h2>
+            
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Connect LinkedIn</h3>
+                        <p>Securely connect your LinkedIn account using OAuth 2.0</p>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Create & Schedule</h3>
+                        <p>Write your post, add images, and set your preferred time</p>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Auto-Publish</h3>
+                        <p>Your posts are automatically published at the scheduled time</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="cta-container">
+            <h2>Ready to Start Scheduling?</h2>
+            <p>Join thousands of professionals who trust us with their LinkedIn content strategy.</p>
+            <a href="{{ url_for('linkedin_auth') }}" class="btn btn-primary btn-large">
+                <i class="fab fa-linkedin"></i>
+                Get Started Now
+            </a>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
+{% endblock %}

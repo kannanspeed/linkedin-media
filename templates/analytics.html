@@ -1,0 +1,288 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics - LinkedIn Scheduler{% endblock %}
+
+{% block content %}
+<div class="analytics">
+    <div class="analytics-container">
+        <div class="page-header">
+            <h1>Analytics Dashboard</h1>
+            <p>Track your LinkedIn posting performance and engagement</p>
+        </div>
+        
+        <!-- Overview Stats -->
+        <div class="analytics-overview">
+            <div class="overview-card">
+                <div class="overview-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <div class="overview-content">
+                    <div class="overview-number">{{ stats.total }}</div>
+                    <div class="overview-label">Total Posts</div>
+                    <div class="overview-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        All time
+                    </div>
+                </div>
+            </div>
+            
+            <div class="overview-card">
+                <div class="overview-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="overview-content">
+                    <div class="overview-number">{{ stats.published }}</div>
+                    <div class="overview-label">Successfully Published</div>
+                    <div class="overview-change positive">
+                        <i class="fas fa-check"></i>
+                        {{ stats.success_rate }}% success rate
+                    </div>
+                </div>
+            </div>
+            
+            <div class="overview-card">
+                <div class="overview-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="overview-content">
+                    <div class="overview-number">{{ stats.scheduled }}</div>
+                    <div class="overview-label">Currently Scheduled</div>
+                    <div class="overview-change neutral">
+                        <i class="fas fa-calendar"></i>
+                        Upcoming posts
+                    </div>
+                </div>
+            </div>
+            
+            <div class="overview-card">
+                <div class="overview-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="overview-content">
+                    <div class="overview-number">{{ stats.failed }}</div>
+                    <div class="overview-label">Failed Posts</div>
+                    <div class="overview-change {% if stats.failed > 0 %}negative{% else %}neutral{% endif %}">
+                        <i class="fas fa-info-circle"></i>
+                        Need attention
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Charts Section -->
+        <div class="analytics-charts">
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3>Publishing Success Rate</h3>
+                    <p>Overview of your posting performance</p>
+                </div>
+                
+                <div class="success-rate-chart">
+                    <div class="chart-visual">
+                        <div class="donut-chart">
+                            <div class="donut-center">
+                                <div class="donut-percentage">{{ stats.success_rate }}%</div>
+                                <div class="donut-label">Success Rate</div>
+                            </div>
+                            <svg width="200" height="200" viewBox="0 0 200 200">
+                                <circle cx="100" cy="100" r="80" fill="none" stroke="#e5e7eb" stroke-width="20"></circle>
+                                <circle cx="100" cy="100" r="80" fill="none" stroke="#10b981" stroke-width="20" 
+                                        stroke-dasharray="{{ (stats.success_rate / 100 * 502.65) }} 502.65" 
+                                        stroke-dashoffset="0" transform="rotate(-90 100 100)"></circle>
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-legend">
+                        <div class="legend-item">
+                            <div class="legend-color success"></div>
+                            <span>Published ({{ stats.published }})</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color failed"></div>
+                            <span>Failed ({{ stats.failed }})</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color scheduled"></div>
+                            <span>Scheduled ({{ stats.scheduled }})</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3>Recent Activity</h3>
+                    <p>Your last 20 posts and their status</p>
+                </div>
+                
+                <div class="activity-timeline">
+                    {% if recent_posts %}
+                        {% for post in recent_posts %}
+                        <div class="timeline-item status-{{ post.status.value }}">
+                            <div class="timeline-marker">
+                                {% if post.status.value == 'published' %}
+                                    <i class="fas fa-check-circle"></i>
+                                {% elif post.status.value == 'failed' %}
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                {% elif post.status.value == 'scheduled' %}
+                                    <i class="fas fa-clock"></i>
+                                {% else %}
+                                    <i class="fas fa-edit"></i>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="timeline-content">
+                                <div class="timeline-text">
+                                    {{ post.content[:100] }}{% if post.content|length > 100 %}...{% endif %}
+                                </div>
+                                
+                                <div class="timeline-meta">
+                                    <span class="timeline-status status-{{ post.status.value }}">
+                                        {{ post.status.value.title() }}
+                                    </span>
+                                    
+                                    {% if post.status.value == 'published' and post.published_time %}
+                                        <span class="timeline-date">{{ post.published_time.strftime('%b %d, %Y at %I:%M %p') }}</span>
+                                    {% elif post.status.value == 'scheduled' and post.scheduled_time %}
+                                        <span class="timeline-date">Scheduled for {{ post.scheduled_time.strftime('%b %d, %Y at %I:%M %p') }}</span>
+                                    {% else %}
+                                        <span class="timeline-date">{{ post.created_at.strftime('%b %d, %Y') }}</span>
+                                    {% endif %}
+                                    
+                                    {% if post.image_path %}
+                                        <span class="timeline-image">
+                                            <i class="fas fa-image"></i>
+                                        </span>
+                                    {% endif %}
+                                </div>
+                                
+                                {% if post.status.value == 'failed' and post.error_message %}
+                                <div class="timeline-error">
+                                    <i class="fas fa-info-circle"></i>
+                                    {{ post.error_message }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-chart-line"></i>
+                            <h3>No data yet</h3>
+                            <p>Start creating and publishing posts to see analytics</p>
+                            <a href="{{ url_for('create_post') }}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i>
+                                Create First Post
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Insights Section -->
+        <div class="analytics-insights">
+            <div class="insight-card">
+                <div class="insight-icon">
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+                <div class="insight-content">
+                    <h4>Posting Tips</h4>
+                    <ul>
+                        <li>Post during peak hours (9 AM, 12 PM, 5 PM) for better engagement</li>
+                        <li>Include images to increase engagement by up to 200%</li>
+                        <li>Keep posts between 150-300 characters for optimal readability</li>
+                        <li>Use 3-5 relevant hashtags to improve discoverability</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="insight-card">
+                <div class="insight-icon">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="insight-content">
+                    <h4>Best Practices</h4>
+                    <ul>
+                        <li>Maintain a consistent posting schedule</li>
+                        <li>Engage with comments on your posts promptly</li>
+                        <li>Share valuable industry insights and personal experiences</li>
+                        <li>Use LinkedIn's native video feature for higher reach</li>
+                    </ul>
+                </div>
+            </div>
+            
+            {% if stats.failed > 0 %}
+            <div class="insight-card warning">
+                <div class="insight-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="insight-content">
+                    <h4>Action Required</h4>
+                    <p>You have {{ stats.failed }} failed post{{ 's' if stats.failed != 1 else '' }}. 
+                    This might be due to:</p>
+                    <ul>
+                        <li>Expired LinkedIn access token</li>
+                        <li>Network connectivity issues</li>
+                        <li>Image upload problems</li>
+                        <li>LinkedIn API rate limits</li>
+                    </ul>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-sm btn-warning">
+                        Review Failed Posts
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.donut-chart {
+    position: relative;
+    display: inline-block;
+}
+
+.donut-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.donut-percentage {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #10b981;
+}
+
+.donut-label {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.timeline-item.status-published .timeline-marker {
+    background-color: #10b981;
+    color: white;
+}
+
+.timeline-item.status-failed .timeline-marker {
+    background-color: #ef4444;
+    color: white;
+}
+
+.timeline-item.status-scheduled .timeline-marker {
+    background-color: #f59e0b;
+    color: white;
+}
+
+.timeline-item.status-draft .timeline-marker {
+    background-color: #6b7280;
+    color: white;
+}
+</style>
+{% endblock %}

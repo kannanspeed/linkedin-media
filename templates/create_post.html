@@ -3,246 +3,304 @@
 {% block title %}Create Post - LinkedIn Scheduler{% endblock %}
 
 {% block content %}
-<div class="create-post">
-    <div class="create-post-container">
-        <div class="page-header">
-            <h1>Create New Post</h1>
-            <p>Write your LinkedIn post and schedule it for the perfect time</p>
-        </div>
-        
-        <form id="create-post-form" enctype="multipart/form-data">
-            <div class="form-grid">
-                <!-- Post Content -->
-                <div class="form-section main-content">
-                    <h3 class="section-title">
-                        <i class="fas fa-edit"></i>
-                        Post Content
-                    </h3>
-                    
-                    <div class="form-group">
-                        <label for="post-content" class="form-label">
-                            What's on your mind?
-                            <span class="required">*</span>
-                        </label>
-                        <textarea 
-                            id="post-content" 
-                            name="content" 
-                            class="form-control post-textarea" 
-                            placeholder="Share your thoughts, insights, or updates with your LinkedIn network..."
-                            rows="8"
-                            maxlength="3000"
-                            required
-                        ></textarea>
-                        <div class="character-count">
-                            <span id="char-count">0</span> / 3000 characters
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="post-image" class="form-label">
-                            <i class="fas fa-image"></i>
-                            Attach Image (Optional)
-                        </label>
-                        <div class="file-upload-area" id="file-upload-area">
-                            <input type="file" id="post-image" name="image" accept="image/*" class="file-input">
-                            <div class="file-upload-content">
-                                <i class="fas fa-cloud-upload-alt"></i>
-                                <p>Click to upload or drag and drop</p>
-                                <small>PNG, JPG, JPEG up to 16MB</small>
-                            </div>
-                        </div>
-                        <div id="image-preview" class="image-preview" style="display: none;">
-                            <img id="preview-img" src="" alt="Preview">
-                            <button type="button" class="remove-image" onclick="removeImage()">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Scheduling Options -->
-                <div class="form-section sidebar">
-                    <h3 class="section-title">
-                        <i class="fas fa-clock"></i>
-                        Scheduling Options
-                    </h3>
-                    
-                    <div class="schedule-options">
-                        <div class="schedule-option">
-                            <input type="radio" id="save-draft" name="schedule_type" value="draft" checked>
-                            <label for="save-draft" class="schedule-label">
-                                <div class="schedule-icon">
-                                    <i class="fas fa-save"></i>
-                                </div>
-                                <div class="schedule-info">
-                                    <strong>Save as Draft</strong>
-                                    <small>Save for later and publish manually</small>
-                                </div>
-                            </label>
-                        </div>
-                        
-                        <div class="schedule-option">
-                            <input type="radio" id="schedule-later" name="schedule_type" value="scheduled">
-                            <label for="schedule-later" class="schedule-label">
-                                <div class="schedule-icon">
-                                    <i class="fas fa-calendar-alt"></i>
-                                </div>
-                                <div class="schedule-info">
-                                    <strong>Schedule for Later</strong>
-                                    <small>Choose a specific date and time</small>
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div id="schedule-time-section" class="schedule-time-section" style="display: none;">
-                        <div class="form-group">
-                            <label for="scheduled-time" class="form-label">Schedule Date & Time</label>
-                            <input type="datetime-local" id="scheduled-time" name="scheduled_time" class="form-control">
-                            <small class="form-hint">
-                                <i class="fas fa-info-circle"></i>
-                                Time is in your local timezone
-                            </small>
-                        </div>
-                        
-                        <div class="optimal-times">
-                            <h4>Suggested optimal posting times:</h4>
-                            <div class="time-suggestions">
-                                <button type="button" class="time-suggestion" onclick="setOptimalTime('09:00')">
-                                    <i class="fas fa-sun"></i>
-                                    9:00 AM - Morning engagement
-                                </button>
-                                <button type="button" class="time-suggestion" onclick="setOptimalTime('12:00')">
-                                    <i class="fas fa-utensils"></i>
-                                    12:00 PM - Lunch break
-                                </button>
-                                <button type="button" class="time-suggestion" onclick="setOptimalTime('17:00')">
-                                    <i class="fas fa-home"></i>
-                                    5:00 PM - End of workday
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Preview Section -->
-            <div class="post-preview-section">
-                <h3 class="section-title">Preview</h3>
-                <div class="linkedin-post-preview">
-                    <div class="preview-header">
-                        <div class="preview-avatar">
-                            {% if current_user.profile_picture %}
-                            <img src="{{ current_user.profile_picture }}" alt="Your profile">
-                            {% else %}
-                            <div class="avatar-placeholder">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            {% endif %}
-                        </div>
-                        <div class="preview-info">
-                            <div class="preview-name">{{ current_user.name }}</div>
-                            <div class="preview-meta">Just now • <i class="fas fa-globe-americas"></i></div>
-                        </div>
-                    </div>
-                    
-                    <div class="preview-content">
-                        <div id="preview-text" class="preview-text">
-                            Write something to see the preview...
-                        </div>
-                        <div id="preview-image" class="preview-image" style="display: none;">
-                            <img id="preview-image-img" src="" alt="Post image">
-                        </div>
-                    </div>
-                    
-                    <div class="preview-actions">
-                        <div class="preview-action">
-                            <i class="far fa-thumbs-up"></i>
-                            <span>Like</span>
-                        </div>
-                        <div class="preview-action">
-                            <i class="far fa-comment"></i>
-                            <span>Comment</span>
-                        </div>
-                        <div class="preview-action">
-                            <i class="fas fa-share"></i>
-                            <span>Share</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Form Actions -->
-            <div class="form-actions">
-                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left"></i>
-                    Back to Dashboard
-                </a>
-                
-                <button type="submit" class="btn btn-primary btn-large" id="submit-btn">
-                    <i class="fas fa-save"></i>
-                    <span id="submit-text">Save Draft</span>
+<div class="buffer-create-post">
+    <div class="buffer-container">
+        <!-- Header -->
+        <div class="buffer-header">
+            <h1 class="buffer-title">Create Post</h1>
+            <div class="buffer-actions">
+                <button type="button" class="buffer-btn buffer-btn-secondary" onclick="addTags()">
+                    <i class="fas fa-tag"></i>
+                    Add Tags
+                    <i class="fas fa-chevron-down"></i>
                 </button>
             </div>
-        </form>
+        </div>
+
+        <div class="buffer-main">
+            <!-- Left Panel - Create Post -->
+            <div class="buffer-left-panel">
+                <form id="create-post-form" enctype="multipart/form-data">
+                    <!-- Channel Selection -->
+                    <div class="buffer-channels">
+                        <div class="channel-item active" data-channel="linkedin">
+                            <div class="channel-avatar">
+                                <img src="{{ current_user.profile_picture or '/static/images/default-avatar.png' }}" alt="Profile" class="channel-img">
+                                <div class="channel-badge">
+                                    <i class="fab fa-linkedin-in"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="channel-item disabled" data-channel="twitter">
+                            <div class="channel-avatar">
+                                <img src="{{ current_user.profile_picture or '/static/images/default-avatar.png' }}" alt="Profile" class="channel-img">
+                                <div class="channel-badge">
+                                    <i class="fab fa-twitter"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="channel-item disabled" data-channel="facebook">
+                            <div class="channel-avatar">
+                                <img src="{{ current_user.profile_picture or '/static/images/default-avatar.png' }}" alt="Profile" class="channel-img">
+                                <div class="channel-badge">
+                                    <i class="fab fa-facebook-f"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Content Area -->
+                    <div class="buffer-content-area">
+                        <div class="buffer-platform-icon">
+                            <i class="fab fa-linkedin-in"></i>
+                        </div>
+                        
+                        <div class="buffer-compose">
+                            <textarea 
+                                id="post-content" 
+                                name="content" 
+                                class="buffer-textarea" 
+                                placeholder="What would you like to share?"
+                                rows="8"
+                                maxlength="3000"
+                                required
+                            ></textarea>
+                            
+                            <!-- Media Upload Area -->
+                            <div class="buffer-media-upload" id="media-upload-area">
+                                <input type="file" id="post-image" name="image" accept="image/*" class="buffer-file-input">
+                                <div class="buffer-upload-placeholder">
+                                    <div class="upload-icon">
+                                        <i class="fas fa-image"></i>
+                                    </div>
+                                    <div class="upload-text">
+                                        <span>Drag & drop</span>
+                                        <br>
+                                        <span>or <a href="#" class="upload-link">select a file</a></span>
+                                    </div>
+                                </div>
+                                <div id="image-preview" class="buffer-image-preview" style="display: none;">
+                                    <img id="preview-img" src="" alt="Preview">
+                                    <button type="button" class="buffer-remove-image" onclick="removeImage()">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Toolbar -->
+                    <div class="buffer-toolbar">
+                        <div class="buffer-toolbar-left">
+                            <button type="button" class="buffer-tool-btn" onclick="document.getElementById('post-image').click()">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                            <button type="button" class="buffer-tool-btn">
+                                <i class="fas fa-expand-arrows-alt"></i>
+                            </button>
+                            <button type="button" class="buffer-tool-btn">
+                                <i class="fas fa-smile"></i>
+                            </button>
+                            <button type="button" class="buffer-tool-btn">
+                                <i class="fas fa-hashtag"></i>
+                            </button>
+                            <button type="button" class="buffer-tool-btn">
+                                <i class="fas fa-magic"></i>
+                            </button>
+                            <button type="button" class="buffer-tool-btn buffer-ai-btn">
+                                <i class="fas fa-robot"></i>
+                                <span>AI Assistant</span>
+                            </button>
+                        </div>
+                        <div class="buffer-toolbar-right">
+                            <span class="buffer-char-count">
+                                <span id="char-count">3000</span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- First Comment -->
+                    <div class="buffer-first-comment">
+                        <div class="first-comment-label">First Comment</div>
+                        <textarea 
+                            class="buffer-comment-textarea" 
+                            placeholder="Your comment"
+                        ></textarea>
+                    </div>
+
+                    <!-- Scheduling Section -->
+                    <div class="buffer-scheduling">
+                        <div class="buffer-schedule-header">
+                            <span class="schedule-label">When to Post</span>
+                            <div class="buffer-schedule-dropdown">
+                                <button type="button" class="buffer-dropdown-btn" id="schedule-dropdown">
+                                    <i class="fas fa-clock"></i>
+                                    <span id="schedule-text">Next Available</span>
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="buffer-schedule-options" id="schedule-options" style="display: none;">
+                            <div class="schedule-option" data-type="now">
+                                <i class="fas fa-paper-plane"></i>
+                                <span>Share now</span>
+                            </div>
+                            <div class="schedule-option" data-type="next">
+                                <i class="fas fa-clock"></i>
+                                <span>Next Available</span>
+                            </div>
+                            <div class="schedule-option" data-type="custom">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span>Schedule Post</span>
+                            </div>
+                        </div>
+                        
+                        <div id="custom-schedule" class="buffer-custom-schedule" style="display: none;">
+                            <input type="datetime-local" id="scheduled-time" name="scheduled_time" class="buffer-datetime-input">
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="buffer-actions-bottom">
+                        <button type="button" class="buffer-btn buffer-btn-draft" onclick="saveDraft()">
+                            Save as Draft
+                        </button>
+                        <button type="submit" class="buffer-btn buffer-btn-primary" id="submit-btn">
+                            <span id="submit-text">Schedule Post</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Right Panel - Preview -->
+            <div class="buffer-right-panel">
+                <div class="buffer-preview-header">
+                    <h3>LinkedIn Preview</h3>
+                    <i class="fas fa-info-circle" title="Preview of how your post will appear"></i>
+                </div>
+                
+                <div class="buffer-preview-content">
+                    <div id="linkedin-preview" class="linkedin-post-preview">
+                        <div class="preview-placeholder">
+                            <i class="fab fa-linkedin-in"></i>
+                            <p>See your post's preview here</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
+// Buffer-style functionality
 const postContent = document.getElementById('post-content');
 const charCount = document.getElementById('char-count');
-const previewText = document.getElementById('preview-text');
 const fileInput = document.getElementById('post-image');
-const fileUploadArea = document.getElementById('file-upload-area');
+const mediaUploadArea = document.getElementById('media-upload-area');
 const imagePreview = document.getElementById('image-preview');
 const previewImg = document.getElementById('preview-img');
-const previewImageSection = document.getElementById('preview-image');
-const previewImageImg = document.getElementById('preview-image-img');
-const scheduleOptions = document.querySelectorAll('input[name="schedule_type"]');
-const scheduleTimeSection = document.getElementById('schedule-time-section');
+const scheduleDropdown = document.getElementById('schedule-dropdown');
+const scheduleOptions = document.getElementById('schedule-options');
+const customSchedule = document.getElementById('custom-schedule');
 const submitBtn = document.getElementById('submit-btn');
 const submitText = document.getElementById('submit-text');
+const scheduleText = document.getElementById('schedule-text');
+
+let currentScheduleType = 'next';
 
 // Character counter and preview update
 postContent.addEventListener('input', function() {
     const length = this.value.length;
-    charCount.textContent = length;
+    const remaining = 3000 - length;
+    charCount.textContent = remaining;
     
-    if (length > 2700) {
-        charCount.style.color = '#e74c3c';
-    } else if (length > 2400) {
-        charCount.style.color = '#f39c12';
+    if (remaining < 100) {
+        charCount.style.color = '#ef4444';
+    } else if (remaining < 300) {
+        charCount.style.color = '#f59e0b';
     } else {
-        charCount.style.color = '#666';
+        charCount.style.color = '#6b7280';
     }
     
-    // Update preview
-    if (this.value.trim()) {
-        previewText.textContent = this.value;
-        previewText.style.color = '#000';
-    } else {
-        previewText.textContent = 'Write something to see the preview...';
-        previewText.style.color = '#999';
-    }
+    updateLinkedInPreview();
 });
+
+// LinkedIn Preview Update
+function updateLinkedInPreview() {
+    const content = postContent.value.trim();
+    const previewContainer = document.getElementById('linkedin-preview');
+    
+    if (!content && !imagePreview.style.display === 'block') {
+        previewContainer.innerHTML = `
+            <div class="preview-placeholder">
+                <i class="fab fa-linkedin-in"></i>
+                <p>See your post's preview here</p>
+            </div>
+        `;
+        return;
+    }
+    
+    const hasImage = imagePreview.style.display === 'block';
+    const imageSrc = hasImage ? previewImg.src : '';
+    
+    previewContainer.innerHTML = `
+        <div class="linkedin-preview-post">
+            <div class="linkedin-preview-header">
+                <div class="linkedin-preview-avatar">
+                    <img src="{{ current_user.profile_picture or '/static/images/default-avatar.png' }}" alt="Profile">
+                </div>
+                <div class="linkedin-preview-info">
+                    <div class="linkedin-preview-name">{{ current_user.name }}</div>
+                    <div class="linkedin-preview-meta">Just now • <i class="fas fa-globe-americas"></i></div>
+                </div>
+            </div>
+            <div class="linkedin-preview-content">
+                ${content ? `<div class="linkedin-preview-text">${content}</div>` : ''}
+                ${hasImage ? `<div class="linkedin-preview-image"><img src="${imageSrc}" alt="Post image"></div>` : ''}
+            </div>
+            <div class="linkedin-preview-actions">
+                <div class="linkedin-preview-action">
+                    <i class="far fa-thumbs-up"></i>
+                    <span>Like</span>
+                </div>
+                <div class="linkedin-preview-action">
+                    <i class="far fa-comment"></i>
+                    <span>Comment</span>
+                </div>
+                <div class="linkedin-preview-action">
+                    <i class="fas fa-share"></i>
+                    <span>Share</span>
+                </div>
+            </div>
+        </div>
+    `;
+}
 
 // File upload handling
-fileUploadArea.addEventListener('click', () => fileInput.click());
-
-fileUploadArea.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    fileUploadArea.classList.add('dragover');
+mediaUploadArea.addEventListener('click', (e) => {
+    if (e.target.classList.contains('upload-link') || e.target.closest('.upload-link')) {
+        e.preventDefault();
+        fileInput.click();
+    }
 });
 
-fileUploadArea.addEventListener('dragleave', () => {
-    fileUploadArea.classList.remove('dragover');
+// Drag and drop functionality
+mediaUploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    mediaUploadArea.classList.add('dragover');
 });
 
-fileUploadArea.addEventListener('drop', (e) => {
+mediaUploadArea.addEventListener('dragleave', () => {
+    mediaUploadArea.classList.remove('dragover');
+});
+
+mediaUploadArea.addEventListener('drop', (e) => {
     e.preventDefault();
-    fileUploadArea.classList.remove('dragover');
+    mediaUploadArea.classList.remove('dragover');
     
     const files = e.dataTransfer.files;
     if (files.length > 0) {
@@ -270,10 +328,9 @@ function handleFileSelect(file) {
     const reader = new FileReader();
     reader.onload = function(e) {
         previewImg.src = e.target.result;
-        previewImageImg.src = e.target.result;
         imagePreview.style.display = 'block';
-        previewImageSection.style.display = 'block';
-        fileUploadArea.style.display = 'none';
+        mediaUploadArea.querySelector('.buffer-upload-placeholder').style.display = 'none';
+        updateLinkedInPreview();
     };
     reader.readAsDataURL(file);
 }
@@ -281,58 +338,90 @@ function handleFileSelect(file) {
 function removeImage() {
     fileInput.value = '';
     imagePreview.style.display = 'none';
-    previewImageSection.style.display = 'none';
-    fileUploadArea.style.display = 'flex';
+    mediaUploadArea.querySelector('.buffer-upload-placeholder').style.display = 'block';
+    updateLinkedInPreview();
 }
 
-// Schedule type handling
-scheduleOptions.forEach(option => {
-    option.addEventListener('change', function() {
-        if (this.value === 'scheduled') {
-            scheduleTimeSection.style.display = 'block';
-            submitText.innerHTML = '<i class="fas fa-clock"></i> Schedule Post';
-            
+// Schedule dropdown functionality
+scheduleDropdown.addEventListener('click', function() {
+    const isVisible = scheduleOptions.style.display === 'block';
+    scheduleOptions.style.display = isVisible ? 'none' : 'block';
+});
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(e) {
+    if (!scheduleDropdown.contains(e.target) && !scheduleOptions.contains(e.target)) {
+        scheduleOptions.style.display = 'none';
+    }
+});
+
+// Schedule option selection
+scheduleOptions.addEventListener('click', function(e) {
+    const option = e.target.closest('.schedule-option');
+    if (!option) return;
+    
+    const type = option.dataset.type;
+    currentScheduleType = type;
+    
+    switch(type) {
+        case 'now':
+            scheduleText.textContent = 'Share now';
+            customSchedule.style.display = 'none';
+            submitText.textContent = 'Share now';
+            break;
+        case 'next':
+            scheduleText.textContent = 'Next Available';
+            customSchedule.style.display = 'none';
+            submitText.textContent = 'Schedule Post';
+            break;
+        case 'custom':
+            scheduleText.textContent = 'Schedule Post';
+            customSchedule.style.display = 'block';
+            submitText.textContent = 'Schedule Post';
             // Set minimum date to current time
             const now = new Date();
             now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
             document.getElementById('scheduled-time').min = now.toISOString().slice(0, 16);
-        } else {
-            scheduleTimeSection.style.display = 'none';
-            submitText.innerHTML = '<i class="fas fa-save"></i> Save Draft';
-        }
-    });
+            break;
+    }
+    
+    scheduleOptions.style.display = 'none';
 });
 
-function setOptimalTime(time) {
-    const today = new Date();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    
-    const [hours, minutes] = time.split(':');
-    tomorrow.setHours(parseInt(hours), parseInt(minutes), 0, 0);
-    
-    // Convert to local timezone for datetime-local input
-    tomorrow.setMinutes(tomorrow.getMinutes() - tomorrow.getTimezoneOffset());
-    
-    document.getElementById('scheduled-time').value = tomorrow.toISOString().slice(0, 16);
+// Helper functions
+function addTags() {
+    alert('Tags functionality coming soon!');
 }
 
-// Form submission
-document.getElementById('create-post-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const formData = new FormData(this);
-    const scheduleType = document.querySelector('input[name="schedule_type"]:checked').value;
-    
-    // Validate content
+function saveDraft() {
     if (!postContent.value.trim()) {
         showFlashMessage('Please enter some content for your post', 'error');
         postContent.focus();
         return;
     }
     
-    // Validate scheduled time if scheduling
-    if (scheduleType === 'scheduled') {
+    const formData = new FormData(document.getElementById('create-post-form'));
+    formData.set('schedule_type', 'draft');
+    
+    submitForm(formData, 'draft');
+}
+
+// Form submission
+document.getElementById('create-post-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    if (!postContent.value.trim()) {
+        showFlashMessage('Please enter some content for your post', 'error');
+        postContent.focus();
+        return;
+    }
+    
+    const formData = new FormData(this);
+    
+    // Set schedule type based on current selection
+    if (currentScheduleType === 'now') {
+        formData.set('schedule_type', 'now');
+    } else if (currentScheduleType === 'custom') {
         const scheduledTime = document.getElementById('scheduled-time').value;
         if (!scheduledTime) {
             showFlashMessage('Please select a date and time for scheduling', 'error');
@@ -344,8 +433,16 @@ document.getElementById('create-post-form').addEventListener('submit', function(
             showFlashMessage('Scheduled time must be in the future', 'error');
             return;
         }
+        
+        formData.set('schedule_type', 'scheduled');
+    } else {
+        formData.set('schedule_type', 'scheduled'); // Next available
     }
     
+    submitForm(formData, currentScheduleType);
+});
+
+function submitForm(formData, type) {
     showLoading();
     submitBtn.disabled = true;
     
@@ -359,10 +456,11 @@ document.getElementById('create-post-form').addEventListener('submit', function(
         submitBtn.disabled = false;
         
         if (data.success) {
-            showFlashMessage(
-                scheduleType === 'scheduled' ? 'Post scheduled successfully!' : 'Post saved as draft!',
-                'success'
-            );
+            let message = 'Post saved as draft!';
+            if (type === 'now') message = 'Post shared successfully!';
+            else if (type === 'next' || type === 'custom') message = 'Post scheduled successfully!';
+            
+            showFlashMessage(message, 'success');
             
             // Redirect to dashboard
             setTimeout(() => {
@@ -376,14 +474,21 @@ document.getElementById('create-post-form').addEventListener('submit', function(
         hideLoading();
         submitBtn.disabled = false;
         showFlashMessage('An error occurred while creating the post', 'error');
+        console.error('Error:', error);
     });
-});
+}
 
-// Initialize datetime input with tomorrow's date
+// Initialize
 document.addEventListener('DOMContentLoaded', function() {
     const now = new Date();
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
     document.getElementById('scheduled-time').min = now.toISOString().slice(0, 16);
+    
+    // Initialize character count
+    charCount.textContent = '3000';
+    
+    // Initialize preview
+    updateLinkedInPreview();
 });
 </script>
 {% endblock %}

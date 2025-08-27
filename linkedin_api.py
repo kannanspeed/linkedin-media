@@ -20,7 +20,7 @@ class LinkedInAPI:
             'response_type': 'code',
             'client_id': self.client_id,
             'redirect_uri': self.redirect_uri,
-            'scope': 'r_basicprofile',
+            'scope': 'openid profile email w_member_social',
             'state': state or 'random_state_string'
         }
         return f"{self.auth_url}?{urlencode(params)}"
@@ -48,39 +48,28 @@ class LinkedInAPI:
             return None
     
     def get_user_profile(self, access_token):
-        """Get user profile information"""
+        """Get user profile information using OpenID Connect"""
         headers = {
             'Authorization': f'Bearer {access_token}',
             'Content-Type': 'application/json'
         }
         
         try:
-            # Get basic profile
+            # Get user profile using OpenID Connect endpoint
             profile_response = requests.get(
-                f"{self.base_url}/people/~:(id,firstName,lastName,profilePicture(displayImage~:playableStreams))",
+                f"{self.base_url}/userinfo",
                 headers=headers
             )
             profile_response.raise_for_status()
             profile_data = profile_response.json()
             
-            # Extract profile picture URL
-            profile_picture = None
-            if 'profilePicture' in profile_data and 'displayImage~' in profile_data['profilePicture']:
-                streams = profile_data['profilePicture']['displayImage~'].get('elements', [])
-                if streams:
-                    # Get the largest image
-                    largest_stream = max(streams, key=lambda x: x.get('data', {}).get('com.linkedin.digitalmedia.mediaartifact.StillImage', {}).get('storageSize', {}).get('width', 0))
-                    identifiers = largest_stream.get('identifiers', [])
-                    if identifiers:
-                        profile_picture = identifiers[0].get('identifier')
-            
-            # Email is not available with current scopes
-            email = None
+            # Extract profile picture URL if available
+            profile_picture = profile_data.get('picture')
             
             return {
-                'id': profile_data.get('id'),
-                'name': f"{profile_data.get('firstName', {}).get('localized', {}).get('en_US', '')} {profile_data.get('lastName', {}).get('localized', {}).get('en_US', '')}".strip(),
-                'email': email,
+                'id': profile_data.get('sub'),  # OpenID Connect uses 'sub' for user ID
+                'name': f"{profile_data.get('given_name', '')} {profile_data.get('family_name', '')}".strip(),
+                'email': profile_data.get('email'),
                 'profile_picture': profile_picture
             }
         except requests.exceptions.RequestException as e:
@@ -138,6 +127,7 @@ class LinkedInAPI:
             'Content-Type': 'application/json'
         }
         
+        # For OpenID Connect, user_id is already the LinkedIn ID
         post_data = {
             "author": f"urn:li:person:{user_id}",
             "lifecycleState": "PUBLISHED",

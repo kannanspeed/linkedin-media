@@ -206,9 +206,9 @@ def api_create_post():
         post_status = PostStatus.DRAFT
         
         if schedule_type == 'now':
-            # Post immediately
-            post_status = PostStatus.SCHEDULED
-            scheduled_time = datetime.utcnow()
+            # Publish immediately - don't use scheduler
+            post_status = PostStatus.DRAFT  # Start as draft, will be updated after publishing
+            scheduled_time = None
         elif schedule_type == 'scheduled' and scheduled_time_str:
             # Parse scheduled time
             try:
@@ -235,14 +235,53 @@ def api_create_post():
         db.session.add(post)
         db.session.commit()
         
-        # Schedule post if needed
-        if scheduled_time and post_status == PostStatus.SCHEDULED:
-            if post_scheduler.schedule_post(post.id, scheduled_time):
-                if schedule_type == 'now':
-                    message = 'Post is being published now!'
+        # Handle immediate publishing
+        if schedule_type == 'now':
+            try:
+                # Publish immediately to LinkedIn
+                image_asset_id = None
+                if image_path:
+                    image_file_path = os.path.join('static', image_path.lstrip('/static/'))
+                    if os.path.exists(image_file_path):
+                        image_asset_id = linkedin_api.upload_image(
+                            current_user.access_token,
+                            image_file_path,
+                            current_user.linkedin_id
+                        )
+                
+                # Create LinkedIn post
+                linkedin_post_id = linkedin_api.create_post(
+                    current_user.access_token,
+                    current_user.linkedin_id,
+                    content,
+                    image_asset_id
+                )
+                
+                if linkedin_post_id:
+                    # Update post status to published
+                    post.status = PostStatus.PUBLISHED
+                    post.published_time = datetime.utcnow()
+                    post.linkedin_post_id = linkedin_post_id
+                    db.session.commit()
+                    flash('Post published successfully!', 'success')
                 else:
-                    message = 'Post scheduled successfully!'
-                flash(message, 'success')
+                    # Publishing failed
+                    post.status = PostStatus.FAILED
+                    post.error_message = 'Failed to publish to LinkedIn'
+                    db.session.commit()
+                    flash('Failed to publish post to LinkedIn', 'error')
+                    
+            except Exception as e:
+                print(f"Error publishing post immediately: {e}")
+                post.status = PostStatus.FAILED
+                post.error_message = str(e)
+                db.session.commit()
+                flash('Failed to publish post immediately', 'error')
+                
+        # Schedule post if needed (for future posts)
+        elif scheduled_time and post_status == PostStatus.SCHEDULED:
+            if post_scheduler.schedule_post(post.id, scheduled_time):
+                flash('Post scheduled successfully!', 'success')
             else:
                 post.status = PostStatus.DRAFT
                 db.session.commit()
